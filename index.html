@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LOVERNSUPERBOTS - Automated Deriv Trading</title>
+<title>LOVERNSUPERBOTS - Automated Trading</title>
 <style>
 :root{--bg:#0b0e14;--pn:#131722;--ln:#232a3a;--fg:#d1d4dc;--mu:#787b86;--up:#26a69a;--dn:#ef5350;--ac:#2962ff;--au:#f0b90b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,sans-serif}
@@ -42,7 +42,7 @@ pre{margin:8px 0 0;font-size:11px;max-height:110px;overflow:auto;white-space:pre
 <div class="nav"><button id="t1" class="a">Free Bots</button><button id="t2">Premium Bots</button></div>
 <div class="rt"><span id="chip" class="chip" hidden></span><button id="lb" class="pb">Login</button><button id="out" hidden>Log out</button></div></div>
 <div class="tick" id="tk"></div>
-<div class="hero" id="hero"><h1>Automated trading bots for your Deriv account</h1>
+<div class="hero" id="hero"><h1>Automated trading bots for your  account</h1>
 <p>Pick a ready-made bot, set your stop loss and take profit, and let it trade. Practise on demo first.</p>
 <button class="pb" id="lb2" style="padding:12px 26px;font-size:15px">Logint</button></div>
 <p id="st" class="mu" style="text-align:center;margin:8px 0 0"></p>
@@ -71,7 +71,7 @@ pre{margin:8px 0 0;font-size:11px;max-height:110px;overflow:auto;white-space:pre
 <div class="ft">Trading involves risk and you can lose your stake. No bot guarantees profit. Past results do not predict future results.</div>
 <script>
 const CID='3524LFH0TwjKK3ubwGXHy',RU='https://cherokins.github.io/LOVERNSUPERBOTS/',SC='trade account_manage',
-AU='https://auth.deriv.com/oauth2/auth',TU='https://auth.deriv.com/oauth2/token',API='https://api.derivws.com';
+AU='https://auth..com/oauth2/auth',TU='https://auth..com/oauth2/token',API='https://api.ws.com';
 const SYM=[['1HZ100V','Vol 100 (1s)'],['1HZ75V','Vol 75 (1s)'],['1HZ50V','Vol 50 (1s)'],['1HZ25V','Vol 25 (1s)'],['1HZ10V','Vol 10 (1s)'],['R_100','Vol 100']];
 const NM=Object.fromEntries(SYM),lk=(h,k)=>h.slice(-k);
 const BOTS=[
@@ -90,7 +90,7 @@ function clr(){sessionStorage.removeItem('dt');sessionStorage.removeItem('de')}
 function load(){const t=sessionStorage.getItem('dt'),e=+sessionStorage.getItem('de')||0;if(t&&Date.now()<e-3e4)return t;clr();return null}
 
 /* public market data (no login needed) */
-function pub(){pw=new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
+function pub(){pw=new WebSocket('wss://api.ws.com/trading/v1/options/ws/public');
 pw.onopen=()=>SYM.forEach(([s],i)=>{PQ[i+1]=s;pw.send(JSON.stringify({ticks:s,subscribe:1,req_id:i+1}))});
 pw.onmessage=m=>{let d;try{d=JSON.parse(m.data)}catch(e){return}if(d.msg_type!=='tick'||!d.tick)return;
 const s=PQ[d.req_id]||d.tick.symbol;if(!H[s])return;const q=+d.tick.quote;H[s].push(q);if(H[s].length>120)H[s].shift();if(!F[s])F[s]=q;P[s]=q;tk(s);
@@ -117,7 +117,7 @@ async function login(){const v=rnd(),s=rnd();sessionStorage.setItem('pv',v);sess
 const ch=b64(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v))));
 location.href=AU+'?'+new URLSearchParams({response_type:'code',client_id:CID,redirect_uri:RU,scope:SC,state:s,code_challenge:ch,code_challenge_method:'S256'})}
 async function cb(){const p=new URLSearchParams(location.search);if(!p.has('code')&&!p.has('error'))return;history.replaceState({},'',location.pathname);
-if(p.get('error')){st('Deriv returned an error: '+p.get('error'),'dn');return}
+if(p.get('error')){st(' returned an error: '+p.get('error'),'dn');return}
 const es=sessionStorage.getItem('ps'),v=sessionStorage.getItem('pv');sessionStorage.removeItem('ps');sessionStorage.removeItem('pv');
 if(!es||p.get('state')!==es){st('Login check failed. Please try again.','dn');return}
 try{st('Signing you in...');const r=await fetch(TU,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
