@@ -90,7 +90,7 @@ function clr(){sessionStorage.removeItem('dt');sessionStorage.removeItem('de')}
 function load(){const t=sessionStorage.getItem('dt'),e=+sessionStorage.getItem('de')||0;if(t&&Date.now()<e-3e4)return t;clr();return null}
 
 /* public market data (no login needed) */
-function pub(){pw=new WebSocket('wss://api.ws.com/trading/v1/options/ws/public');
+function pub(){pw=new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
 pw.onopen=()=>SYM.forEach(([s],i)=>{PQ[i+1]=s;pw.send(JSON.stringify({ticks:s,subscribe:1,req_id:i+1}))});
 pw.onmessage=m=>{let d;try{d=JSON.parse(m.data)}catch(e){return}if(d.msg_type!=='tick'||!d.tick)return;
 const s=PQ[d.req_id]||d.tick.symbol;if(!H[s])return;const q=+d.tick.quote;H[s].push(q);if(H[s].length>120)H[s].shift();if(!F[s])F[s]=q;P[s]=q;tk(s);
