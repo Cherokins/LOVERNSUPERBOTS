@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOVERNSUPERBOTS - Login test</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; line-height: 1.5; }
+  button { padding: 10px 18px; font-size: 16px; cursor: pointer; }
+  pre { background: #f4f4f4; color: #111; padding: 12px; overflow: auto; border-radius: 6px; font-size: 13px; }
+  .err { color: #b00020; }
+  .ok { color: #0a7d2c; }
+</style>
+</head>
+<body>
+<h1>LOVERNSUPERBOTS</h1>
+<p id="status">Not logged in.</p>
+<button id="loginBtn">Login with Deriv</button>
+<pre id="out" hidden></pre>
 
+<script>
+const CLIENT_ID    = '3524LFH0TwjKK3ubwGXHy';
+const REDIRECT_URI = 'https://cherokins.github.io/LOVERNSUPERBOTS/';
+const SCOPE        = 'trade account_manage';
+const AUTH_URL     = 'https://auth.deriv.com/oauth2/auth';
+const TOKEN_URL    = 'https://auth.deriv.com/oauth2/token';
+const API_BASE     = 'https://api.derivws.com';
+
+const $ = (id) => document.getElementById(id);
+
+function show(msg, cls) {
+  const s = $('status');
+  s.textContent = msg;
+  s.className = cls || '';
+}
+
+function dump(obj) {
+  const o = $('out');
+  o.hidden = false;
+  o.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+}
+
+function b64url(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function randomString() {
+  const a = new Uint8Array(32);
+  crypto.getRandomValues(a);
+  return b64url(a);
+}
+
+async function challengeFrom(verifier) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  return b64url(new Uint8Array(digest));
+}
+
+async function login() {
+  const verifier = randomString();
+  const state = randomString();
+  sessionStorage.setItem('pkce_verifier', verifier);
+  sessionStorage.setItem('oauth_state', state);
+
+  const url = new URL(AUTH_URL);
+  url.search = new URLSearchParams({
+    response_type: 'code',
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPE,
+    state: state,
+    code_challenge: await challengeFrom(verifier),
+    code_challenge_method: 'S256'
+  }).toString();
+
+  location.href = url.toString();
+}
+
+async function handleCallback() {
+  const p = new URLSearchParams(location.search);
+  if (!p.has('code') && !p.has('error')) return;
+
+  // Remove ?code=... from the address bar
+  history.replaceState({}, '', location.pathname);
+
+  if (p.get('error')) {
+    show('Deriv returned an error: ' + p.get('error') + ' ' + (p.get('error_description') || ''), 'err');
+    return;
+  }
+
+  const expectedState = sessionStorage.getItem('oauth_state');
+  const verifier = sessionStorage.getItem('pkce_verifier');
+  sessionStorage.removeItem('oauth_state');
+  sessionStorage.removeItem('pkce_verifier');
+
+  if (!expectedState || p.get('state') !== expectedState) {
+    show('State mismatch - login cancelled. Please try again.', 'err');
+    return;
+  }
+
+  let step = 'token exchange';
+  try {
+    show('Exchanging code for token...');
+    const r = await fetch(TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: CLIENT_ID,
+        code: p.get('code'),
+        redirect_uri: REDIRECT_URI,
+        code_verifier: verifier
+      })
+    });
+    const data = await r.json();
+    if (!r.ok || !data.access_token) {
+      show('Token exchange failed (HTTP ' + r.status + ').', 'err');
+      dump(data);
+      return;
+    }
+
+    show('Token received (valid for ' + data.expires_in + ' seconds). Loading accounts...', 'ok');
+
+    step = 'accounts request';
+    const a = await fetch(API_BASE + '/trading/v1/options/accounts', {
+      headers: { 'Authorization': 'Bearer ' + data.access_token }
+    });
+    const accounts = await a.json();
+    show(a.ok ? 'Logged in. Accounts loaded.' : 'Logged in, but the accounts call failed (HTTP ' + a.status + ').',
+         a.ok ? 'ok' : 'err');
+    dump(accounts);
+  } catch (e) {
+    show('The ' + step + ' failed: ' + e.message + '. If this says "Failed to fetch", it is probably a CORS block. Press F12 and check the Console tab.', 'err');
+    console.error(e);
+  }
+}
+
+$('loginBtn').addEventListener('click', login);
+handleCallback();
+</script>
+</body>
+</html>
