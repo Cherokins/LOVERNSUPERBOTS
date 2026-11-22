@@ -1,79 +1,114 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LOVERNSUPERBOTS - Deriv trading bots</title>
+<title>LOVERNSUPERBOTS - Automated Deriv Trading</title>
 <style>
-:root{--bg:#f4f6fa;--card:#fff;--fg:#14181f;--mu:#667085;--ln:#e3e7ee;--ac:#2563eb;--ok:#0a8f3c;--er:#c62828;--wn:#b26a00}
-@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--fg:#e8ecf2;--mu:#98a2b3;--ln:#262c36;--ac:#6ea0ff;--ok:#4ade80;--er:#ff7b72;--wn:#fbbf24}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
-.w{max-width:900px;margin:0 auto;padding:14px}
-header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-h1{font-size:19px;margin:0}h2{font-size:15px;margin:0 0 10px}
-.c{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:12px}
-button,select,input{font:inherit;padding:8px 12px;border-radius:7px;border:1px solid var(--ln);background:var(--card);color:var(--fg)}
-button{cursor:pointer}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.d{background:var(--er);color:#fff;border-color:var(--er)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.b{border:1px solid var(--ln);border-radius:9px;padding:12px}.b.on{border-color:var(--ac)}
-.tag{font-size:11px;padding:2px 7px;border-radius:99px;background:var(--ln);color:var(--mu)}
-.mu{color:var(--mu)}.ok{color:var(--ok)}.er{color:var(--er)}.wn{color:var(--wn)}
-.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:10px 0}
-.f label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:3px}
-.s{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.s b{font-size:18px;display:block}
-.tabs button{margin-right:6px}.tabs .a{background:var(--ac);color:#fff;border-color:var(--ac)}
-canvas{width:100%;height:120px;display:block}
-pre{margin:8px 0 0;font-size:12px;max-height:170px;overflow:auto;white-space:pre-wrap;color:var(--mu)}
-.lock{opacity:.7}
-</style></head><body><div class="w">
-<header><h1>LOVERNSUPERBOTS</h1><div><span id="chip" class="mu"></span> <button id="out" hidden>Log out</button></div></header>
-<p id="st" class="mu" style="margin:0 0 10px">Not logged in.</p>
-
-<div class="c" id="login"><h2>Trade with ready-made bots</h2>
-<p class="mu">Connect your Deriv account. Start on a demo account; you choose demo or real at any time.</p>
-<button class="p" id="lb">Login with Deriv</button></div>
-
-<div class="c" id="acc" hidden><h2>Account</h2>
-<select id="as"></select> <button class="p" id="cb">Connect</button> <button id="db" hidden>Disconnect</button>
-<p class="mu" style="margin:8px 0 0">Balance: <b id="bal" style="color:var(--fg)">-</b> <span id="rw" class="wn" hidden>REAL MONEY</span></p></div>
-
-<div class="c" id="lib" hidden><div class="tabs" style="margin-bottom:10px"><button id="t1" class="a">Free bots</button><button id="t2">Premium bots</button></div>
-<div class="g" id="bl"></div></div>
-
-<div class="c" id="run" hidden><h2>Bot: <span id="bn">none selected</span></h2>
-<div class="f">
-<label>Market<select id="sy"></select></label>
-<label>Stake<input id="sk" type="number" min="0.35" step="0.01" value="1"></label>
+:root{--bg:#0b0e14;--pn:#131722;--ln:#232a3a;--fg:#d1d4dc;--mu:#787b86;--up:#26a69a;--dn:#ef5350;--ac:#2962ff;--au:#f0b90b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,sans-serif}
+.up{color:var(--up)}.dn{color:var(--dn)}.mu{color:var(--mu)}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:var(--pn);border-bottom:1px solid var(--ln)}
+.logo{font-weight:800;letter-spacing:.5px;font-size:16px;display:flex;align-items:center;gap:8px}.logo i{width:10px;height:10px;border-radius:50%;background:var(--up);box-shadow:0 0 8px var(--up)}
+.nav button{background:none;border:0;color:var(--mu);font-weight:600;padding:8px 12px;cursor:pointer}.nav button.a{color:#fff;border-bottom:2px solid var(--ac)}
+.rt{display:flex;align-items:center;gap:10px}
+.chip{background:var(--bg);border:1px solid var(--ln);border-radius:6px;padding:5px 10px;font-weight:600}
+.bd{font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-right:6px}.bd.demo{background:#2962ff33;color:#6e9bff}.bd.real{background:#ef535033;color:var(--dn)}
+button,select,input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--ln);border-radius:6px;padding:8px 10px}
+button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+.pb{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700}.gb{background:var(--up);border-color:var(--up);color:#06201c;font-weight:800}.rb{background:var(--dn);border-color:var(--dn);color:#fff;font-weight:800}
+.tick{display:flex;overflow-x:auto;background:var(--pn);border-bottom:1px solid var(--ln)}
+.ti{min-width:150px;padding:8px 14px;border-right:1px solid var(--ln);cursor:pointer}.ti.on{background:var(--bg);box-shadow:inset 0 -2px var(--ac)}
+.ti b{display:block;font-size:11px;color:var(--mu);font-weight:600}.ti span{font-weight:700}.ti small{margin-left:6px}
+.hero{padding:26px 16px;text-align:center;background:radial-gradient(ellipse at top,#16213e,var(--bg) 70%)}
+.hero h1{font-size:clamp(22px,4vw,34px);margin:0 0 6px}.hero p{color:var(--mu);margin:0 0 14px}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;padding:12px 16px;max-width:1280px;margin:0 auto}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+.pn{background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:12px}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.px{font-size:28px;font-weight:800}
+canvas{width:100%;height:300px;display:block}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.st div{background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:10px}
+.st span{font-size:11px;color:var(--mu);display:block}.st b{font-size:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{color:var(--mu);font-weight:600;text-align:left}td,th{padding:6px 4px;border-bottom:1px solid var(--ln)}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.f label{font-size:11px;color:var(--mu);display:flex;flex-direction:column;gap:3px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;background:var(--bg);border:1px solid var(--ln)}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;max-width:1280px;margin:0 auto;padding:0 16px 16px}
+.bt{background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:14px}.bt.on{border-color:var(--ac)}.bt h3{margin:0 0 4px;font-size:15px}
+.tg{font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;margin-left:6px}.tg.f1{background:#26a69a33;color:var(--up)}.tg.p1{background:#f0b90b33;color:var(--au)}
+.sec{max-width:1280px;margin:0 auto;padding:6px 16px;font-weight:700;font-size:15px}
+pre{margin:8px 0 0;font-size:11px;max-height:110px;overflow:auto;white-space:pre-wrap;color:var(--mu)}
+.ft{text-align:center;color:var(--mu);font-size:11px;padding:16px}
+</style></head><body>
+<div class="top"><div class="logo"><i></i>LOVERN SUPERBOTS</div>
+<div class="nav"><button id="t1" class="a">Free Bots</button><button id="t2">Premium Bots</button></div>
+<div class="rt"><span id="chip" class="chip" hidden></span><button id="lb" class="pb">Login with Deriv</button><button id="out" hidden>Log out</button></div></div>
+<div class="tick" id="tk"></div>
+<div class="hero" id="hero"><h1>Automated trading bots for your Deriv account</h1>
+<p>Pick a ready-made bot, set your stop loss and take profit, and let it trade. Practise on demo first.</p>
+<button class="pb" id="lb2" style="padding:12px 26px;font-size:15px">Connect Deriv account</button></div>
+<p id="st" class="mu" style="text-align:center;margin:8px 0 0"></p>
+<div class="main"><div>
+<div class="pn"><div class="ph"><div><select id="sy"></select>
+<span class="px" id="px" style="margin-left:10px">-</span> <span id="chg"></span></div><span id="pill" class="pill">Idle</span></div>
+<canvas id="cv"></canvas></div>
+<div class="st"><div><span>Trades</span><b id="n">0</b></div><div><span>Win rate</span><b id="wr">-</b></div>
+<div><span>Won / Lost</span><b id="wl">0 / 0</b></div><div><span>Profit / Loss</span><b id="pl">0.00</b></div></div>
+<div class="pn" style="margin-top:12px"><div class="ph"><b>Trade history</b></div>
+<table><thead><tr><th>Time</th><th>Type</th><th>Stake</th><th>Result</th></tr></thead><tbody id="hb"></tbody></table><pre id="lg"></pre></div></div>
+<div><div class="pn"><div class="ph"><b>Account</b><span id="rw" class="dn" hidden>REAL MONEY</span></div>
+<div id="aw" class="mu">Log in to trade with a bot.</div>
+<div id="ac" hidden><select id="as" style="width:100%"></select>
+<div style="display:flex;gap:8px;margin-top:8px"><button class="pb" id="cb" style="flex:1">Connect</button><button id="db" hidden>Disconnect</button></div>
+<div class="mu" style="margin-top:8px">Balance <b id="bal" style="color:var(--fg)">-</b></div></div></div>
+<div class="pn"><div class="ph"><b>Bot: <span id="bn" class="mu">none selected</span></b></div>
+<div class="f"><label>Stake<input id="sk" type="number" min="0.35" step="0.01" value="1"></label>
 <label>Duration (ticks)<input id="du" type="number" min="1" max="10" value="5"></label>
 <label>Stop loss<input id="sl" type="number" min="0" step="0.01" value="10"></label>
 <label>Take profit<input id="tp" type="number" min="0" step="0.01" value="10"></label>
-<label>Max trades<input id="mt" type="number" min="1" value="50"></label></div>
-<button class="p" id="go" disabled>Run bot</button> <button class="d" id="stp" hidden>Stop</button>
-<div class="s"><div><span class="mu">Price</span><b id="px">-</b></div><div><span class="mu">Trades</span><b id="n">0</b></div>
-<div><span class="mu">Won / Lost</span><b id="wl">0 / 0</b></div><div><span class="mu">Profit/Loss</span><b id="pl">0.00</b></div></div>
-<canvas id="cv" width="800" height="240"></canvas><pre id="lg"></pre></div>
-
-<p class="mu" style="font-size:12px">Trading involves risk and you can lose your stake. No bot guarantees profit. Past results do not predict future results.</p>
-</div>
+<label style="grid-column:span 2">Max trades<input id="mt" type="number" min="1" value="50"></label></div>
+<button class="gb" id="go" style="width:100%;padding:12px" disabled>RUN BOT</button>
+<button class="rb" id="stp" style="width:100%;padding:12px" hidden>STOP BOT</button></div></div></div>
+<div class="sec" id="lt">Free bots</div><div class="g" id="bl"></div>
+<div class="ft">Trading involves risk and you can lose your stake. No bot guarantees profit. Past results do not predict future results.</div>
 <script>
 const CID='3524LFH0TwjKK3ubwGXHy',RU='https://cherokins.github.io/LOVERNSUPERBOTS/',SC='trade account_manage',
 AU='https://auth.deriv.com/oauth2/auth',TU='https://auth.deriv.com/oauth2/token',API='https://api.derivws.com';
-const SYM=[['1HZ100V','Volatility 100 (1s)'],['1HZ75V','Volatility 75 (1s)'],['1HZ50V','Volatility 50 (1s)'],['1HZ25V','Volatility 25 (1s)'],['1HZ10V','Volatility 10 (1s)'],['R_100','Volatility 100'],['R_75','Volatility 75'],['R_50','Volatility 50'],['R_25','Volatility 25'],['R_10','Volatility 10']];
-const last=(h,k)=>h.slice(-k);
+const SYM=[['1HZ100V','Vol 100 (1s)'],['1HZ75V','Vol 75 (1s)'],['1HZ50V','Vol 50 (1s)'],['1HZ25V','Vol 25 (1s)'],['1HZ10V','Vol 10 (1s)'],['R_100','Vol 100']];
+const NM=Object.fromEntries(SYM),lk=(h,k)=>h.slice(-k);
 const BOTS=[
-{id:'mom',name:'Momentum Follower',desc:'Buys Rise after 3 rising ticks in a row, Fall after 3 falling ticks.',
- sig:h=>{if(h.length<4)return null;const[a,b,c,d]=last(h,4);return b>a&&c>b&&d>c?'CALL':b<a&&c<b&&d<c?'PUT':null}},
-{id:'rev',name:'Reversal Catcher',desc:'Buys Fall after 3 rising ticks, Rise after 3 falling ticks.',
- sig:h=>{if(h.length<4)return null;const[a,b,c,d]=last(h,4);return b>a&&c>b&&d>c?'PUT':b<a&&c<b&&d<c?'CALL':null}},
-{id:'avg',name:'Average Pullback',desc:'Buys Rise when price drops below its 10-tick average, Fall when above.',
- sig:h=>{if(h.length<10)return null;const m=last(h,10).reduce((x,y)=>x+y,0)/10,p=h[h.length-1];return p<m?'CALL':p>m?'PUT':null}}];
+{id:'mom',name:'Momentum Follower',desc:'Buys Rise after 3 rising ticks in a row, Fall after 3 falling ticks.',sig:h=>{if(h.length<4)return null;const[a,b,c,d]=lk(h,4);return b>a&&c>b&&d>c?'CALL':b<a&&c<b&&d<c?'PUT':null}},
+{id:'rev',name:'Reversal Catcher',desc:'Buys Fall after 3 rising ticks, Rise after 3 falling ticks.',sig:h=>{if(h.length<4)return null;const[a,b,c,d]=lk(h,4);return b>a&&c>b&&d>c?'PUT':b<a&&c<b&&d<c?'CALL':null}},
+{id:'avg',name:'Average Pullback',desc:'Buys Rise when price is below its 10-tick average, Fall when above.',sig:h=>{if(h.length<10)return null;const m=lk(h,10).reduce((x,y)=>x+y,0)/10,p=h[h.length-1];return p<m?'CALL':p>m?'PUT':null}}];
 const PREM=[['Premium Bot 1','Advanced strategy with built-in recovery logic.'],['Premium Bot 2','Multi-market scanner bot.']];
-const $=i=>document.getElementById(i);let tok=null,accs=[],ws=null,rid=0,acc=null,bot=null,hist=[],R=null;
-
+const $=i=>document.getElementById(i);
+let tok=null,accs=[],ws=null,rid=0,acc=null,bot=null,R=null,cur='1HZ100V',H={},F={},P={},PQ={},pw=null;
+SYM.forEach(([s])=>H[s]=[]);
 function st(m,c){const e=$('st');e.textContent=m;e.className=c||'mu'}
-function lg(m){const e=$('lg');const l=e.textContent?e.textContent.split('\n'):[];l.push(new Date().toLocaleTimeString()+'  '+m);e.textContent=l.slice(-60).join('\n');e.scrollTop=e.scrollHeight}
+function lg(m){const e=$('lg');const l=e.textContent?e.textContent.split('\n'):[];l.push(new Date().toLocaleTimeString()+'  '+m);e.textContent=l.slice(-40).join('\n');e.scrollTop=e.scrollHeight}
+function pill(t,c){const e=$('pill');e.textContent=t;e.style.color=c||'';}
 function save(t,s){sessionStorage.setItem('dt',t);sessionStorage.setItem('de',String(Date.now()+s*1e3))}
 function clr(){sessionStorage.removeItem('dt');sessionStorage.removeItem('de')}
 function load(){const t=sessionStorage.getItem('dt'),e=+sessionStorage.getItem('de')||0;if(t&&Date.now()<e-3e4)return t;clr();return null}
+
+/* public market data (no login needed) */
+function pub(){pw=new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
+pw.onopen=()=>SYM.forEach(([s],i)=>{PQ[i+1]=s;pw.send(JSON.stringify({ticks:s,subscribe:1,req_id:i+1}))});
+pw.onmessage=m=>{let d;try{d=JSON.parse(m.data)}catch(e){return}if(d.msg_type!=='tick'||!d.tick)return;
+const s=PQ[d.req_id]||d.tick.symbol;if(!H[s])return;const q=+d.tick.quote;H[s].push(q);if(H[s].length>120)H[s].shift();if(!F[s])F[s]=q;P[s]=q;tk(s);
+if(s===cur){hdr();draw();if(R&&!R.busy)think()}};
+pw.onclose=()=>setTimeout(pub,3000)}
+function buildTk(){const b=$('tk');SYM.forEach(([s,n])=>{const d=document.createElement('div');d.className='ti';d.id='ti_'+s;
+d.innerHTML='<b></b><span>-</span><small></small>';d.firstChild.textContent=n;d.onclick=()=>pickSym(s);b.appendChild(d)});$('ti_'+cur).classList.add('on')}
+function tk(s){const d=$('ti_'+s),c=(P[s]-F[s])/F[s]*100;d.children[1].textContent=P[s].toFixed(2);const g=d.children[2];g.textContent=(c>=0?'+':'')+c.toFixed(2)+'%';g.className=c>=0?'up':'dn'}
+function pickSym(s){if(R)return;cur=s;$('sy').value=s;document.querySelectorAll('.ti').forEach(x=>x.classList.toggle('on',x.id==='ti_'+s));hdr();draw()}
+function hdr(){const a=H[cur];if(!a.length)return;$('px').textContent=P[cur].toFixed(2);const c=(P[cur]-F[cur])/F[cur]*100;const e=$('chg');e.textContent=(c>=0?'+':'')+c.toFixed(2)+'%';e.className=c>=0?'up':'dn'}
+function draw(){const c=$('cv'),r0=devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*r0;c.height=h*r0;const x=c.getContext('2d');x.scale(r0,r0);
+const a=H[cur];if(a.length<2)return;const mn=Math.min(...a),mx=Math.max(...a),r=(mx-mn)||1,pd=22,col=a[a.length-1]>=a[0]?'#26a69a':'#ef5350';
+const Y=v=>h-pd-(v-mn)/r*(h-2*pd),X=i=>i/(a.length-1)*(w-62);x.font='11px system-ui';x.lineWidth=1;
+for(let i=0;i<5;i++){const y=pd+i*(h-2*pd)/4;x.strokeStyle='#1e2433';x.beginPath();x.moveTo(0,y);x.lineTo(w-58,y);x.stroke();x.fillStyle='#787b86';x.fillText((mx-i*r/4).toFixed(2),w-56,y+4)}
+x.beginPath();a.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)));x.strokeStyle=col;x.lineWidth=2;x.stroke();
+const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,col+'55');g.addColorStop(1,col+'00');x.lineTo(X(a.length-1),h);x.lineTo(0,h);x.closePath();x.fillStyle=g;x.fill();
+const ly=Y(a[a.length-1]);x.setLineDash([4,4]);x.strokeStyle=col;x.lineWidth=1;x.beginPath();x.moveTo(0,ly);x.lineTo(w-58,ly);x.stroke();x.setLineDash([]);
+x.fillStyle=col;x.fillRect(w-58,ly-9,58,18);x.fillStyle='#fff';x.fillText(a[a.length-1].toFixed(2),w-54,ly+4)}
 
 /* login (PKCE) */
 const b64=b=>btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -82,82 +117,77 @@ async function login(){const v=rnd(),s=rnd();sessionStorage.setItem('pv',v);sess
 const ch=b64(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v))));
 location.href=AU+'?'+new URLSearchParams({response_type:'code',client_id:CID,redirect_uri:RU,scope:SC,state:s,code_challenge:ch,code_challenge_method:'S256'})}
 async function cb(){const p=new URLSearchParams(location.search);if(!p.has('code')&&!p.has('error'))return;history.replaceState({},'',location.pathname);
-if(p.get('error')){st('Deriv returned an error: '+p.get('error'),'er');return}
+if(p.get('error')){st('Deriv returned an error: '+p.get('error'),'dn');return}
 const es=sessionStorage.getItem('ps'),v=sessionStorage.getItem('pv');sessionStorage.removeItem('ps');sessionStorage.removeItem('pv');
-if(!es||p.get('state')!==es){st('Login check failed. Please try again.','er');return}
+if(!es||p.get('state')!==es){st('Login check failed. Please try again.','dn');return}
 try{st('Signing you in...');const r=await fetch(TU,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
 body:new URLSearchParams({grant_type:'authorization_code',client_id:CID,code:p.get('code'),redirect_uri:RU,code_verifier:v})});
-const d=await r.json();if(!r.ok||!d.access_token){st('Login failed (HTTP '+r.status+').','er');return}save(d.access_token,+d.expires_in||3600)}catch(e){st('Login failed: '+e.message,'er')}}
-
-/* screens */
-function out(){$('login').hidden=false;['acc','lib','run'].forEach(i=>$(i).hidden=true);$('out').hidden=true;$('chip').textContent=''}
+const d=await r.json();if(!r.ok||!d.access_token){st('Login failed (HTTP '+r.status+').','dn');return}save(d.access_token,+d.expires_in||3600)}catch(e){st('Login failed: '+e.message,'dn')}}
+function out(){$('hero').hidden=false;$('lb').hidden=false;$('out').hidden=true;$('chip').hidden=true;$('ac').hidden=true;$('aw').hidden=false}
 async function loadAccs(){try{st('Loading your accounts...');
 const r=await fetch(API+'/trading/v1/options/accounts',{headers:{Authorization:'Bearer '+tok}});
-if(r.status===401){clr();tok=null;out();st('Session expired. Please log in again.','er');return}
+if(r.status===401){clr();tok=null;out();st('Session expired. Please log in again.','dn');return}
 const b=await r.json(),l=Array.isArray(b)?b:b&&Array.isArray(b.data)?b.data:null;
-if(!r.ok||!l||!l.length){st('Could not read your accounts (HTTP '+r.status+').','er');return}
+if(!r.ok||!l||!l.length){st('Could not read your accounts (HTTP '+r.status+').','dn');return}
 accs=l;const s=$('as');s.textContent='';l.forEach(a=>{const o=document.createElement('option');o.value=a.account_id;
 o.textContent=String(a.account_type).toUpperCase()+' - '+a.account_id+' - '+a.balance+' '+a.currency;s.appendChild(o)});
-$('login').hidden=true;$('acc').hidden=false;$('lib').hidden=false;$('out').hidden=false;
-st('Logged in. Pick a bot below, choose an account and Connect.','ok');showBots(1)}catch(e){st('Could not load accounts: '+e.message,'er')}}
+$('hero').hidden=true;$('lb').hidden=true;$('out').hidden=false;$('ac').hidden=false;$('aw').hidden=true;
+st('Logged in. Load a bot, pick a DEMO account and press Connect.','up')}catch(e){st('Could not load accounts: '+e.message,'dn')}}
 
 /* bot library */
-function showBots(free){$('t1').className=free?'a':'';$('t2').className=free?'':'a';const g=$('bl');g.textContent='';
-const mk=(t,d,tag,lock,fn)=>{const x=document.createElement('div');x.className='b'+(lock?' lock':'');
-const h=document.createElement('b');h.textContent=t+' ';const g2=document.createElement('span');g2.className='tag';g2.textContent=tag;h.appendChild(g2);
-const p=document.createElement('p');p.className='mu';p.textContent=d;const bt=document.createElement('button');
-bt.textContent=lock?'Unlocks after payment':'Load bot';bt.disabled=lock;if(!lock)bt.onclick=fn;x.append(h,p,bt);x.id=lock?'':'b_'+t;g.appendChild(x)};
-if(free)BOTS.forEach(b=>mk(b.name,b.desc,'FREE',false,()=>pick(b)));else PREM.forEach(p=>mk(p[0],p[1],'PREMIUM',true))}
-function pick(b){bot=b;$('bn').textContent=b.name;$('run').hidden=false;
-document.querySelectorAll('.b').forEach(x=>x.classList.toggle('on',x.id==='b_'+b.name));
-$('go').disabled=!ws;lg('Loaded: '+b.name+(ws?'':' (connect an account to run it)'));$('run').scrollIntoView({behavior:'smooth'})}
+function showBots(free){$('t1').className=free?'a':'';$('t2').className=free?'':'a';$('lt').textContent=free?'Free bots':'Premium bots';const g=$('bl');g.textContent='';
+(free?BOTS.map(b=>[b.name,b.desc,0,()=>pick(b)]):PREM.map(p=>[p[0],p[1],1])).forEach(([t,d,lock,fn])=>{const x=document.createElement('div');x.className='bt';x.id=lock?'':'b_'+t;
+const h=document.createElement('h3');h.textContent=t;const g2=document.createElement('span');g2.className='tg '+(lock?'p1':'f1');g2.textContent=lock?'PREMIUM':'FREE';h.appendChild(g2);
+const p=document.createElement('p');p.className='mu';p.textContent=d;const bt=document.createElement('button');bt.textContent=lock?'Unlocks after payment':'Load bot';bt.disabled=!!lock;if(!lock){bt.className='pb';bt.onclick=fn}
+x.append(h,p,bt);g.appendChild(x)})}
+function pick(b){bot=b;$('bn').textContent=b.name;$('bn').className='';document.querySelectorAll('.bt').forEach(x=>x.classList.toggle('on',x.id==='b_'+b.name));
+$('go').disabled=!ws;lg('Loaded: '+b.name+(ws?'':' (connect an account to run it)'));window.scrollTo({top:0,behavior:'smooth'})}
 
-/* connection */
+/* trading connection */
 const snd=o=>{if(ws&&ws.readyState===1){o.req_id=++rid;ws.send(JSON.stringify(o))}};
-function sub(rep){if(rep)snd({forget_all:'ticks'});hist=[];$('px').textContent='-';snd({ticks:$('sy').value,subscribe:1})}
-function closeWs(){if(R)stop('Disconnected.');if(ws){const o=ws;ws=null;try{o.close()}catch(e){}}$('db').hidden=true;$('go').disabled=true}
+function closeWs(){if(R)stop('Disconnected.');if(ws){const o=ws;ws=null;try{o.close()}catch(e){}}$('db').hidden=true;$('go').disabled=true;$('chip').hidden=true}
 async function connect(){acc=accs.find(a=>String(a.account_id)===$('as').value);if(!acc)return;
 if(acc.account_type==='real'&&!confirm('This is a REAL-money account ('+acc.account_id+'). Continue?'))return;
 closeWs();try{st('Opening a secure connection...');
 const r=await fetch(API+'/trading/v1/options/accounts/'+encodeURIComponent(acc.account_id)+'/otp',{method:'POST',headers:{Authorization:'Bearer '+tok}});
-if(r.status===401){clr();tok=null;out();st('Session expired. Please log in again.','er');return}
-const b=await r.json(),u=b&&b.data&&b.data.url;if(!r.ok||!u){st('Could not get a connection (HTTP '+r.status+').','er');return}open_(u)}catch(e){st('Connection failed: '+e.message,'er')}}
+if(r.status===401){clr();tok=null;out();st('Session expired. Please log in again.','dn');return}
+const b=await r.json(),u=b&&b.data&&b.data.url;if(!r.ok||!u){st('Could not get a connection (HTTP '+r.status+').','dn');return}open_(u)}catch(e){st('Connection failed: '+e.message,'dn')}}
 function open_(u){const k=new WebSocket(u);ws=k;
-k.onopen=()=>{if(ws!==k)return;st('Connected to '+acc.account_type.toUpperCase()+' account '+acc.account_id+'.','ok');
-$('bal').textContent=acc.balance+' '+acc.currency;$('rw').hidden=acc.account_type!=='real';$('chip').textContent=acc.account_type.toUpperCase()+' '+acc.account_id;
-$('db').hidden=false;$('run').hidden=false;$('go').disabled=!bot;snd({balance:1,subscribe:1});sub(false)};
+k.onopen=()=>{if(ws!==k)return;const re=acc.account_type==='real';st('Connected to '+acc.account_type.toUpperCase()+' account '+acc.account_id+'.','up');
+$('bal').textContent=acc.balance+' '+acc.currency;$('rw').hidden=!re;const c=$('chip');c.hidden=false;c.textContent='';
+const b=document.createElement('span');b.className='bd '+(re?'real':'demo');b.textContent=re?'REAL':'DEMO';c.append(b,document.createTextNode(acc.balance+' '+acc.currency));c.id='chip';
+$('db').hidden=false;$('go').disabled=!bot;snd({balance:1,subscribe:1})};
 k.onmessage=m=>{if(ws!==k)return;let d;try{d=JSON.parse(m.data)}catch(e){return}msg(d)};
 k.onerror=()=>{if(ws===k)lg('Connection error')};
-k.onclose=()=>{if(ws!==k)return;ws=null;if(R)stop('Connection lost.');$('db').hidden=true;$('go').disabled=true;st('Disconnected. Click Connect to reconnect.')}}
+k.onclose=()=>{if(ws!==k)return;ws=null;if(R)stop('Connection lost.');$('db').hidden=true;$('go').disabled=true;$('chip').hidden=true;st('Disconnected. Press Connect to reconnect.')}}
 
 /* bot engine */
 function msg(d){
-if(d.error){lg('API: '+(d.error.message||JSON.stringify(d.error)));if(R&&R.busy&&R.stage!=='open'){R.busy=false;R.stage=''}return}
+if(d.error){lg('API: '+(d.error.message||JSON.stringify(d.error)));if(R&&R.busy&&R.stage!=='open'){R.busy=false;R.stage='';pill('Scanning','')}return}
 const t=d.msg_type;
-if(t==='balance'&&d.balance){$('bal').textContent=d.balance.balance+' '+d.balance.currency}
-else if(t==='tick'&&d.tick){const q=+d.tick.quote;$('px').textContent=d.tick.quote;hist.push(q);if(hist.length>80)hist.shift();draw();if(R&&!R.busy)think()}
+if(t==='balance'&&d.balance){const s=d.balance.balance+' '+d.balance.currency;$('bal').textContent=s;const c=$('chip');if(c.lastChild)c.lastChild.textContent=s}
 else if(t==='proposal'&&R&&R.stage==='prop'&&d.proposal){R.stage='buy';snd({buy:d.proposal.id,price:d.proposal.ask_price})}
-else if(t==='buy'&&R&&d.buy){R.stage='open';R.cid=d.buy.contract_id;lg('Bought '+R.side+' @ '+d.buy.buy_price);snd({proposal_open_contract:1,contract_id:R.cid,subscribe:1})}
+else if(t==='buy'&&R&&d.buy){R.stage='open';R.cid=d.buy.contract_id;pill('Trade open','var(--au)');lg('Bought '+(R.side==='CALL'?'RISE':'FALL')+' @ '+d.buy.buy_price);snd({proposal_open_contract:1,contract_id:R.cid,subscribe:1})}
 else if(t==='proposal_open_contract'&&R&&d.proposal_open_contract){const c=d.proposal_open_contract;
 if(c.contract_id!==R.cid||!c.is_sold||R.settled)return;R.settled=true;const pr=+c.profit||0;R.trades++;R.pnl+=pr;pr>0?R.w++:R.l++;
-if(d.subscription&&d.subscription.id)snd({forget:d.subscription.id});lg((pr>0?'WIN ':'LOSS ')+pr.toFixed(2));ui();
-const s=R.cfg;if(R.pnl<=-s.sl)return stop('Stop loss reached.');if(R.pnl>=s.tp)return stop('Take profit reached.');if(R.trades>=s.mt)return stop('Max trades reached.');R.busy=false;R.stage=''}}
-function think(){const s=bot.sig(hist);if(!s)return;R.busy=true;R.stage='prop';R.side=s;R.settled=false;R.cid=null;
-snd({proposal:1,amount:R.cfg.stake,basis:'stake',contract_type:s,currency:acc.currency,duration:R.cfg.du,duration_unit:'t',underlying_symbol:$('sy').value})}
-function ui(){$('n').textContent=R.trades;$('wl').textContent=R.w+' / '+R.l;const e=$('pl');e.textContent=R.pnl.toFixed(2);e.className=R.pnl>0?'ok':R.pnl<0?'er':''}
+if(d.subscription&&d.subscription.id)snd({forget:d.subscription.id});row(R.side,R.cfg.stake,pr);ui();
+const s=R.cfg;if(R.pnl<=-s.sl)return stop('Stop loss reached.');if(R.pnl>=s.tp)return stop('Take profit reached.');if(R.trades>=s.mt)return stop('Max trades reached.');R.busy=false;R.stage='';pill('Scanning','var(--up)')}}
+function row(side,stake,pr){const tr=document.createElement('tr');[new Date().toLocaleTimeString(),side==='CALL'?'RISE':'FALL',stake.toFixed(2),(pr>0?'+':'')+pr.toFixed(2)].forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;if(i===3)td.className=pr>0?'up':'dn';tr.appendChild(td)});
+const b=$('hb');b.insertBefore(tr,b.firstChild);while(b.children.length>10)b.removeChild(b.lastChild)}
+function think(){const s=bot.sig(H[cur]);if(!s)return;R.busy=true;R.stage='prop';R.side=s;R.settled=false;R.cid=null;
+snd({proposal:1,amount:R.cfg.stake,basis:'stake',contract_type:s,currency:acc.currency,duration:R.cfg.du,duration_unit:'t',underlying_symbol:cur})}
+function ui(){$('n').textContent=R.trades;$('wl').textContent=R.w+' / '+R.l;$('wr').textContent=R.trades?Math.round(R.w/R.trades*100)+'%':'-';const e=$('pl');e.textContent=R.pnl.toFixed(2);e.className=R.pnl>0?'up':R.pnl<0?'dn':''}
 function go(){if(!bot||!ws)return;const cfg={stake:+$('sk').value,du:Math.round(+$('du').value),sl:+$('sl').value,tp:+$('tp').value,mt:Math.round(+$('mt').value)};
-if(!(cfg.stake>0)||!(cfg.du>=1)||!(cfg.sl>0)||!(cfg.tp>0)||!(cfg.mt>=1)){st('Check your settings: stake, stop loss, take profit and max trades must be above zero.','er');return}
+if(!(cfg.stake>0)||!(cfg.du>=1)||!(cfg.sl>0)||!(cfg.tp>0)||!(cfg.mt>=1)){st('Check your settings: stake, stop loss, take profit and max trades must be above zero.','dn');return}
 if(acc.account_type==='real'&&!confirm('Run "'+bot.name+'" on your REAL account with a stake of '+cfg.stake+'?'))return;
-R={cfg,busy:false,stage:'',trades:0,w:0,l:0,pnl:0};ui();$('go').hidden=true;$('stp').hidden=false;$('sy').disabled=true;lg('Started '+bot.name+' on '+$('sy').value)}
-function stop(why){if(!R)return;R=null;$('go').hidden=false;$('stp').hidden=true;$('sy').disabled=false;lg('Stopped. '+(why||'')+' Any open trade will still finish.')}
-function draw(){const c=$('cv'),x=c.getContext('2d'),w=c.width,h=c.height;x.clearRect(0,0,w,h);if(hist.length<2)return;
-const mn=Math.min(...hist),mx=Math.max(...hist),r=mx-mn||1;x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--ac')||'#2563eb';x.lineWidth=2;x.beginPath();
-hist.forEach((v,i)=>{const px=i/(hist.length-1)*w,py=h-8-(v-mn)/r*(h-16);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
+R={cfg,busy:false,stage:'',trades:0,w:0,l:0,pnl:0};ui();$('go').hidden=true;$('stp').hidden=false;$('sy').disabled=true;pill('Scanning','var(--up)');lg('Started '+bot.name+' on '+NM[cur])}
+function stop(why){if(!R)return;R=null;$('go').hidden=false;$('stp').hidden=true;$('sy').disabled=false;pill('Idle','');lg('Stopped. '+(why||'')+' Any open trade will still finish.');st(why||'Bot stopped.','mu')}
 
 /* wire up */
 SYM.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;$('sy').appendChild(o)});
-$('lb').onclick=login;$('cb').onclick=connect;$('db').onclick=()=>{closeWs();st('Disconnected.')};$('go').onclick=go;$('stp').onclick=()=>stop('Stopped by you.');
-$('sy').onchange=()=>sub(true);$('t1').onclick=()=>showBots(1);$('t2').onclick=()=>showBots(0);
+buildTk();showBots(1);pub();addEventListener('resize',draw);
+$('lb').onclick=login;$('lb2').onclick=login;$('cb').onclick=connect;$('db').onclick=()=>{closeWs();st('Disconnected.')};$('go').onclick=go;$('stp').onclick=()=>stop('Stopped by you.');
+$('sy').onchange=()=>pickSym($('sy').value);$('t1').onclick=()=>showBots(1);$('t2').onclick=()=>showBots(0);
 $('out').onclick=()=>{closeWs();clr();location.href=RU};
 (async()=>{await cb();tok=load();if(tok)await loadAccs();else out()})();
 </script></body></html>
